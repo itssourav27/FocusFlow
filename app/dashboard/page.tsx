@@ -1,15 +1,7 @@
-import nextDynamic from "next/dynamic";
-
 import DashboardCards from "@/components/dashboard/DashboardCards";
+import TasksByWeekChart from "@/components/charts/TasksByWeekChart";
 import { getDashboardOverview } from "@/lib/dashboard";
 import { DashboardStat } from "@/lib/types";
-
-const TasksByWeekChart = nextDynamic(
-  () => import("@/components/charts/TasksByWeekChart"),
-  {
-    ssr: false,
-  },
-);
 
 export const dynamic = "force-dynamic";
 

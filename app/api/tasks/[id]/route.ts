@@ -5,12 +5,14 @@ import { isTaskStatus } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 
 type Params = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
-export async function PATCH(request: NextRequest, { params }: Params) {
+export async function PATCH(request: NextRequest, context: Params) {
+  const params = await context.params;
+
   try {
     const body = (await request.json()) as {
       title?: string;
@@ -85,7 +87,9 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: Params) {
+export async function DELETE(_request: NextRequest, context: Params) {
+  const params = await context.params;
+
   try {
     await prisma.task.delete({ where: { id: params.id } });
     return new NextResponse(null, { status: 204 });

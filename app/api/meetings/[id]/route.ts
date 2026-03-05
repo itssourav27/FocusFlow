@@ -4,12 +4,14 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 type Params = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
-export async function GET(_request: NextRequest, { params }: Params) {
+export async function GET(_request: NextRequest, context: Params) {
+  const params = await context.params;
+
   try {
     const meeting = await prisma.meeting.findUnique({
       where: { id: params.id },
@@ -35,7 +37,9 @@ export async function GET(_request: NextRequest, { params }: Params) {
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: Params) {
+export async function PATCH(request: NextRequest, context: Params) {
+  const params = await context.params;
+
   try {
     const body = (await request.json()) as {
       title?: string;
@@ -96,7 +100,9 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: Params) {
+export async function DELETE(_request: NextRequest, context: Params) {
+  const params = await context.params;
+
   try {
     await prisma.meeting.delete({ where: { id: params.id } });
     return new NextResponse(null, { status: 204 });

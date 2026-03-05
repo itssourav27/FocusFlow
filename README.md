@@ -118,6 +118,13 @@ npm run dev
 - For Prisma, `postinstall` runs `prisma generate` automatically.
 - SQLite is ideal for local/simple setups. For production-grade persistence on Vercel, use a hosted database and update `DATABASE_URL` accordingly.
 
+## CI
+
+- GitHub Actions workflow: `.github/workflows/ci.yml`
+- Runs on push and pull requests.
+- Pipeline steps: `npm ci` -> `npm run lint` -> `npm run build` -> `npm run db:reset` -> `npm run api:smoke`
+- Additional non-blocking security job: `npm audit --omit=dev --audit-level=high`
+
 ## Environment
 
 `.env`

@@ -1,10 +1,5 @@
-import nextDynamic from "next/dynamic";
-
+import Charts from "@/components/charts/Charts";
 import { getAnalyticsOverview } from "@/lib/analytics";
-
-const Charts = nextDynamic(() => import("@/components/charts/Charts"), {
-  ssr: false,
-});
 
 export const dynamic = "force-dynamic";
 

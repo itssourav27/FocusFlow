@@ -7,7 +7,7 @@
     "build": "next build",
     "postinstall": "prisma generate",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
@@ -17,22 +17,22 @@
     "api:smoke": "node scripts/api-smoke.mjs"
   },
   "prisma": {
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.mjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "date-fns": "^4.1.0",
-    "next": "14.2.35",
-    "react": "^18",
-    "react-dom": "^18",
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "recharts": "^3.7.0"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.35",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.3",
+    "eslint-config-next": "^16.1.6",
     "postcss": "^8",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
