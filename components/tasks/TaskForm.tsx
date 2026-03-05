@@ -3,7 +3,10 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
-import { TASK_CREATED_EVENT, TaskCreatedEventPayload } from "@/lib/client-events";
+import {
+  TASK_CREATED_EVENT,
+  TaskCreatedEventPayload,
+} from "@/lib/client-events";
 import { useToast } from "@/components/ui/ToastProvider";
 
 type TaskFormMeetingOption = {
@@ -16,10 +19,15 @@ type TaskFormProps = {
   defaultMeetingId?: string;
 };
 
-export default function TaskForm({ meetings, defaultMeetingId }: TaskFormProps) {
+export default function TaskForm({
+  meetings,
+  defaultMeetingId,
+}: TaskFormProps) {
   const router = useRouter();
   const { pushToast } = useToast();
-  const [meetingId, setMeetingId] = useState(defaultMeetingId ?? meetings[0]?.id ?? "");
+  const [meetingId, setMeetingId] = useState(
+    defaultMeetingId ?? meetings[0]?.id ?? "",
+  );
   const [title, setTitle] = useState("");
   const [deadline, setDeadline] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -45,32 +53,50 @@ export default function TaskForm({ meetings, defaultMeetingId }: TaskFormProps) 
       });
 
       if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        const data = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
         throw new Error(data?.error ?? "Unable to save task");
       }
 
-      const task = (await response.json().catch(() => null)) as TaskCreatedEventPayload | null;
+      const task = (await response
+        .json()
+        .catch(() => null)) as TaskCreatedEventPayload | null;
 
       setTitle("");
       setDeadline("");
 
       if (task && typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent<TaskCreatedEventPayload>(TASK_CREATED_EVENT, { detail: task }));
+        window.dispatchEvent(
+          new CustomEvent<TaskCreatedEventPayload>(TASK_CREATED_EVENT, {
+            detail: task,
+          }),
+        );
       }
 
       pushToast({ title: "Task created", variant: "success" });
       router.refresh();
     } catch (submitError) {
-      const message = submitError instanceof Error ? submitError.message : "Unable to save task";
+      const message =
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to save task";
       setError(message);
-      pushToast({ title: "Task save failed", description: message, variant: "error" });
+      pushToast({
+        title: "Task save failed",
+        description: message,
+        variant: "error",
+      });
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+    >
       <h2 className="text-lg font-semibold text-slate-900">New Task</h2>
 
       {meetings.length === 0 ? (
@@ -80,7 +106,10 @@ export default function TaskForm({ meetings, defaultMeetingId }: TaskFormProps) 
       ) : null}
 
       <div>
-        <label htmlFor="task-meeting" className="mb-1 block text-sm font-medium text-slate-700">
+        <label
+          htmlFor="task-meeting"
+          className="mb-1 block text-sm font-medium text-slate-700"
+        >
           Meeting
         </label>
         <select
@@ -100,7 +129,10 @@ export default function TaskForm({ meetings, defaultMeetingId }: TaskFormProps) 
       </div>
 
       <div>
-        <label htmlFor="task-title" className="mb-1 block text-sm font-medium text-slate-700">
+        <label
+          htmlFor="task-title"
+          className="mb-1 block text-sm font-medium text-slate-700"
+        >
           Task Title
         </label>
         <input
@@ -115,7 +147,10 @@ export default function TaskForm({ meetings, defaultMeetingId }: TaskFormProps) 
       </div>
 
       <div>
-        <label htmlFor="task-deadline" className="mb-1 block text-sm font-medium text-slate-700">
+        <label
+          htmlFor="task-deadline"
+          className="mb-1 block text-sm font-medium text-slate-700"
+        >
           Deadline
         </label>
         <input

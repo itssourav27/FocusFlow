@@ -41,7 +41,9 @@ export default function TaskItem({
     <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className={`text-sm font-medium ${status === "completed" ? "text-slate-400 line-through" : "text-slate-700"}`}>
+          <p
+            className={`text-sm font-medium ${status === "completed" ? "text-slate-400 line-through" : "text-slate-700"}`}
+          >
             {title}
           </p>
           <p className="mt-1 text-xs text-slate-500">
@@ -78,7 +80,10 @@ export default function TaskItem({
       </div>
 
       {isEditing ? (
-        <form onSubmit={saveChanges} className="mt-4 grid gap-3 sm:grid-cols-[1fr_180px_auto]">
+        <form
+          onSubmit={saveChanges}
+          className="mt-4 grid gap-3 sm:grid-cols-[1fr_180px_auto]"
+        >
           <input
             type="text"
             required

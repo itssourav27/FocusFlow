@@ -25,7 +25,9 @@ export async function getMeetings(): Promise<MeetingListItem[]> {
   }));
 }
 
-export async function getMeetingById(id: string): Promise<MeetingDetail | null> {
+export async function getMeetingById(
+  id: string,
+): Promise<MeetingDetail | null> {
   const meeting = await prisma.meeting.findUnique({
     where: { id },
     include: {

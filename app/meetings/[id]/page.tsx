@@ -15,7 +15,9 @@ type MeetingDetailPageProps = {
 
 export const dynamic = "force-dynamic";
 
-export default async function MeetingDetailPage({ params }: MeetingDetailPageProps) {
+export default async function MeetingDetailPage({
+  params,
+}: MeetingDetailPageProps) {
   const meeting = await getMeetingById(params.id);
 
   if (!meeting) {
@@ -26,10 +28,14 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">{meeting.title}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+            {meeting.title}
+          </h1>
           <DeleteMeetingButton meetingId={meeting.id} />
         </div>
-        <p className="mt-2 text-sm text-slate-500">Meeting date: {format(meeting.date, "PPP")}</p>
+        <p className="mt-2 text-sm text-slate-500">
+          Meeting date: {format(meeting.date, "PPP")}
+        </p>
       </header>
 
       <section className="grid gap-6 lg:grid-cols-2">
@@ -43,11 +49,16 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
           initialNotes={meeting.notes}
         />
 
-        <TaskForm meetings={[{ id: meeting.id, title: meeting.title }]} defaultMeetingId={meeting.id} />
+        <TaskForm
+          meetings={[{ id: meeting.id, title: meeting.title }]}
+          defaultMeetingId={meeting.id}
+        />
       </section>
 
       <section className="mt-8">
-        <h2 className="mb-3 text-lg font-semibold text-slate-900">Action Items</h2>
+        <h2 className="mb-3 text-lg font-semibold text-slate-900">
+          Action Items
+        </h2>
         <TaskList tasks={meeting.tasks} meetingScopeId={meeting.id} />
       </section>
     </main>

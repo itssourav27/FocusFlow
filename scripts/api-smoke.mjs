@@ -34,9 +34,13 @@ async function stopServer(child) {
 
   if (process.platform === "win32" && child.pid) {
     await new Promise((resolve) => {
-      const killer = spawn("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
-        stdio: "ignore",
-      });
+      const killer = spawn(
+        "taskkill",
+        ["/pid", String(child.pid), "/t", "/f"],
+        {
+          stdio: "ignore",
+        },
+      );
       killer.on("close", () => resolve());
       killer.on("error", () => resolve());
     });
@@ -94,7 +98,10 @@ async function run() {
       method: "POST",
       body: JSON.stringify(meetingPayload),
     });
-    assert(createdMeeting.response.status === 201, "Expected 201 when creating meeting");
+    assert(
+      createdMeeting.response.status === 201,
+      "Expected 201 when creating meeting",
+    );
     assert(createdMeeting.body?.id, "Expected created meeting id");
 
     const meetingId = createdMeeting.body.id;
@@ -103,8 +110,14 @@ async function run() {
       method: "PATCH",
       body: JSON.stringify({ title: "API Smoke Meeting Updated" }),
     });
-    assert(updatedMeeting.response.status === 200, "Expected 200 when updating meeting");
-    assert(updatedMeeting.body?.title === "API Smoke Meeting Updated", "Meeting title was not updated");
+    assert(
+      updatedMeeting.response.status === 200,
+      "Expected 200 when updating meeting",
+    );
+    assert(
+      updatedMeeting.body?.title === "API Smoke Meeting Updated",
+      "Meeting title was not updated",
+    );
 
     const createdTask = await request("/api/tasks", {
       method: "POST",
@@ -115,7 +128,10 @@ async function run() {
         status: "pending",
       }),
     });
-    assert(createdTask.response.status === 201, "Expected 201 when creating task");
+    assert(
+      createdTask.response.status === 201,
+      "Expected 201 when creating task",
+    );
     assert(createdTask.body?.id, "Expected created task id");
 
     const taskId = createdTask.body.id;
@@ -124,14 +140,30 @@ async function run() {
       method: "PATCH",
       body: JSON.stringify({ status: "completed" }),
     });
-    assert(updatedTask.response.status === 200, "Expected 200 when updating task");
-    assert(updatedTask.body?.status === "completed", "Task status was not updated");
+    assert(
+      updatedTask.response.status === 200,
+      "Expected 200 when updating task",
+    );
+    assert(
+      updatedTask.body?.status === "completed",
+      "Task status was not updated",
+    );
 
-    const deletedTask = await request(`/api/tasks/${taskId}`, { method: "DELETE" });
-    assert(deletedTask.response.status === 204, "Expected 204 when deleting task");
+    const deletedTask = await request(`/api/tasks/${taskId}`, {
+      method: "DELETE",
+    });
+    assert(
+      deletedTask.response.status === 204,
+      "Expected 204 when deleting task",
+    );
 
-    const deletedMeeting = await request(`/api/meetings/${meetingId}`, { method: "DELETE" });
-    assert(deletedMeeting.response.status === 204, "Expected 204 when deleting meeting");
+    const deletedMeeting = await request(`/api/meetings/${meetingId}`, {
+      method: "DELETE",
+    });
+    assert(
+      deletedMeeting.response.status === 204,
+      "Expected 204 when deleting meeting",
+    );
 
     console.log("API smoke test passed.");
   } finally {

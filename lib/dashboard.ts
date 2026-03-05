@@ -20,14 +20,16 @@ function getRecentWeekRanges(numberOfWeeks: number) {
 }
 
 export async function getDashboardOverview(): Promise<DashboardOverview> {
-  const [totalMeetings, totalTasks, pendingTasks, completedTasks] = await Promise.all([
-    prisma.meeting.count(),
-    prisma.task.count(),
-    prisma.task.count({ where: { status: "pending" } }),
-    prisma.task.count({ where: { status: "completed" } }),
-  ]);
+  const [totalMeetings, totalTasks, pendingTasks, completedTasks] =
+    await Promise.all([
+      prisma.meeting.count(),
+      prisma.task.count(),
+      prisma.task.count({ where: { status: "pending" } }),
+      prisma.task.count({ where: { status: "completed" } }),
+    ]);
 
-  const completionRate = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+  const completionRate =
+    totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
   const weekRanges = getRecentWeekRanges(6);
 

@@ -6,7 +6,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import TaskItem from "@/components/tasks/TaskItem";
 import { useToast } from "@/components/ui/ToastProvider";
-import { TASK_CREATED_EVENT, TaskCreatedEventPayload } from "@/lib/client-events";
+import {
+  TASK_CREATED_EVENT,
+  TaskCreatedEventPayload,
+} from "@/lib/client-events";
 import { TaskListItem, TaskStatus } from "@/lib/types";
 
 type TaskListProps = {
@@ -24,14 +27,23 @@ function toDate(value: Date | string): Date {
   return value instanceof Date ? value : new Date(value);
 }
 
-function shouldIncludeTask(payload: TaskCreatedEventPayload, statusFilter: "all" | TaskStatus, meetingScopeId?: string) {
+function shouldIncludeTask(
+  payload: TaskCreatedEventPayload,
+  statusFilter: "all" | TaskStatus,
+  meetingScopeId?: string,
+) {
   const matchesScope = !meetingScopeId || payload.meetingId === meetingScopeId;
-  const matchesFilter = statusFilter === "all" || payload.status === statusFilter;
+  const matchesFilter =
+    statusFilter === "all" || payload.status === statusFilter;
 
   return matchesScope && matchesFilter;
 }
 
-export default function TaskList({ tasks, statusFilter = "all", meetingScopeId }: TaskListProps) {
+export default function TaskList({
+  tasks,
+  statusFilter = "all",
+  meetingScopeId,
+}: TaskListProps) {
   const router = useRouter();
   const { pushToast } = useToast();
   const [taskState, setTaskState] = useState(tasks);
@@ -72,7 +84,10 @@ export default function TaskList({ tasks, statusFilter = "all", meetingScopeId }
         createdAt: new Date(payload.createdAt),
       };
 
-      setTaskState((current) => [optimisticTask, ...current.filter((task) => task.id !== payload.id)]);
+      setTaskState((current) => [
+        optimisticTask,
+        ...current.filter((task) => task.id !== payload.id),
+      ]);
     }
 
     window.addEventListener(TASK_CREATED_EVENT, handleTaskCreated);
@@ -96,9 +111,14 @@ export default function TaskList({ tasks, statusFilter = "all", meetingScopeId }
       return;
     }
 
-    const nextStatus = currentTask.status === "completed" ? "pending" : "completed";
+    const nextStatus =
+      currentTask.status === "completed" ? "pending" : "completed";
 
-    setTaskState((current) => current.map((task) => (task.id === id ? { ...task, status: nextStatus } : task)));
+    setTaskState((current) =>
+      current.map((task) =>
+        task.id === id ? { ...task, status: nextStatus } : task,
+      ),
+    );
     markBusy(id, true);
 
     try {
@@ -111,16 +131,26 @@ export default function TaskList({ tasks, statusFilter = "all", meetingScopeId }
       });
 
       if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        const data = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
         throw new Error(data?.error ?? "Unable to update task status");
       }
 
-      pushToast({ title: nextStatus === "completed" ? "Task completed" : "Task reopened", variant: "success" });
+      pushToast({
+        title: nextStatus === "completed" ? "Task completed" : "Task reopened",
+        variant: "success",
+      });
       router.refresh();
     } catch (error) {
       setTaskState(previous);
-      const message = error instanceof Error ? error.message : "Unable to update task status";
-      pushToast({ title: "Task update failed", description: message, variant: "error" });
+      const message =
+        error instanceof Error ? error.message : "Unable to update task status";
+      pushToast({
+        title: "Task update failed",
+        description: message,
+        variant: "error",
+      });
     } finally {
       markBusy(id, false);
     }
@@ -148,7 +178,9 @@ export default function TaskList({ tasks, statusFilter = "all", meetingScopeId }
         const response = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
 
         if (!response.ok) {
-          const data = (await response.json().catch(() => null)) as { error?: string } | null;
+          const data = (await response.json().catch(() => null)) as {
+            error?: string;
+          } | null;
           throw new Error(data?.error ?? "Unable to delete task");
         }
 
@@ -166,8 +198,13 @@ export default function TaskList({ tasks, statusFilter = "all", meetingScopeId }
           delete pendingDeletesRef.current[id];
         }
 
-        const message = error instanceof Error ? error.message : "Unable to delete task";
-        pushToast({ title: "Task delete failed", description: message, variant: "error" });
+        const message =
+          error instanceof Error ? error.message : "Unable to delete task";
+        pushToast({
+          title: "Task delete failed",
+          description: message,
+          variant: "error",
+        });
       }
     };
 
@@ -202,7 +239,10 @@ export default function TaskList({ tasks, statusFilter = "all", meetingScopeId }
     });
   }
 
-  async function onSave(id: string, payload: { title: string; deadline: string }) {
+  async function onSave(
+    id: string,
+    payload: { title: string; deadline: string },
+  ) {
     const previous = taskState;
 
     setTaskState((current) =>
@@ -228,7 +268,9 @@ export default function TaskList({ tasks, statusFilter = "all", meetingScopeId }
       });
 
       if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        const data = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
         throw new Error(data?.error ?? "Unable to update task");
       }
 
@@ -236,15 +278,24 @@ export default function TaskList({ tasks, statusFilter = "all", meetingScopeId }
       router.refresh();
     } catch (error) {
       setTaskState(previous);
-      const message = error instanceof Error ? error.message : "Unable to update task";
-      pushToast({ title: "Task update failed", description: message, variant: "error" });
+      const message =
+        error instanceof Error ? error.message : "Unable to update task";
+      pushToast({
+        title: "Task update failed",
+        description: message,
+        variant: "error",
+      });
     } finally {
       markBusy(id, false);
     }
   }
 
   if (!hasTasks) {
-    return <p className="rounded-xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">No tasks found.</p>;
+    return (
+      <p className="rounded-xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">
+        No tasks found.
+      </p>
+    );
   }
 
   return (

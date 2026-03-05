@@ -4,7 +4,10 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 
 import MeetingCard from "@/components/meetings/MeetingCard";
-import { MEETING_CREATED_EVENT, MeetingCreatedEventPayload } from "@/lib/client-events";
+import {
+  MEETING_CREATED_EVENT,
+  MeetingCreatedEventPayload,
+} from "@/lib/client-events";
 
 type MeetingListItemView = {
   id: string;
@@ -34,7 +37,10 @@ export default function MeetingList({ initialMeetings }: MeetingListProps) {
         taskCount: 0,
       };
 
-      setMeetings((current) => [nextMeeting, ...current.filter((meeting) => meeting.id !== payload.id)]);
+      setMeetings((current) => [
+        nextMeeting,
+        ...current.filter((meeting) => meeting.id !== payload.id),
+      ]);
     }
 
     window.addEventListener(MEETING_CREATED_EVENT, handleMeetingCreated);

@@ -9,7 +9,9 @@ type DeleteMeetingButtonProps = {
   meetingId: string;
 };
 
-export default function DeleteMeetingButton({ meetingId }: DeleteMeetingButtonProps) {
+export default function DeleteMeetingButton({
+  meetingId,
+}: DeleteMeetingButtonProps) {
   const router = useRouter();
   const { pushToast } = useToast();
   const [isPendingDelete, setIsPendingDelete] = useState(false);
@@ -45,10 +47,14 @@ export default function DeleteMeetingButton({ meetingId }: DeleteMeetingButtonPr
       timeoutRef.current = null;
 
       try {
-        const response = await fetch(`/api/meetings/${meetingId}`, { method: "DELETE" });
+        const response = await fetch(`/api/meetings/${meetingId}`, {
+          method: "DELETE",
+        });
 
         if (!response.ok) {
-          const data = (await response.json().catch(() => null)) as { error?: string } | null;
+          const data = (await response.json().catch(() => null)) as {
+            error?: string;
+          } | null;
           throw new Error(data?.error ?? "Unable to delete meeting");
         }
 
@@ -57,8 +63,13 @@ export default function DeleteMeetingButton({ meetingId }: DeleteMeetingButtonPr
         router.refresh();
       } catch (error) {
         setIsPendingDelete(false);
-        const message = error instanceof Error ? error.message : "Unable to delete meeting";
-        pushToast({ title: "Meeting delete failed", description: message, variant: "error" });
+        const message =
+          error instanceof Error ? error.message : "Unable to delete meeting";
+        pushToast({
+          title: "Meeting delete failed",
+          description: message,
+          variant: "error",
+        });
       }
     };
 

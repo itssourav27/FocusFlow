@@ -14,24 +14,24 @@ FocusFlow is a clean and minimal productivity app for capturing meeting notes an
 ## Features
 
 - Dashboard overview
-	- Total meetings
-	- Total tasks
-	- Pending/completed task counts
-	- Completion percentage
-	- Weekly task completion chart
+  - Total meetings
+  - Total tasks
+  - Pending/completed task counts
+  - Completion percentage
+  - Weekly task completion chart
 - Meetings management
-	- Create, list, update, and delete meetings
-	- Meeting details page with notes and linked action items
+  - Create, list, update, and delete meetings
+  - Meeting details page with notes and linked action items
 - Task management
-	- Create, edit, delete tasks
-	- Toggle task completion status
-	- Filter tasks by status
-	- Optimistic UI interactions
-	- Undo windows for delete actions
+  - Create, edit, delete tasks
+  - Toggle task completion status
+  - Filter tasks by status
+  - Optimistic UI interactions
+  - Undo windows for delete actions
 - Analytics
-	- Weekly task completion chart
-	- Task completion rate visualization
-	- Tasks-per-meeting chart
+  - Weekly task completion chart
+  - Task completion rate visualization
+  - Tasks-per-meeting chart
 
 ## Project Structure
 

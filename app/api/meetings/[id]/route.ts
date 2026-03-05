@@ -28,7 +28,10 @@ export async function GET(_request: NextRequest, { params }: Params) {
 
     return NextResponse.json(meeting);
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch meeting", detail: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch meeting", detail: String(error) },
+      { status: 500 },
+    );
   }
 }
 
@@ -49,7 +52,10 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (typeof body.title === "string") {
       const title = body.title.trim();
       if (!title) {
-        return NextResponse.json({ error: "Title cannot be empty" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Title cannot be empty" },
+          { status: 400 },
+        );
       }
       payload.title = title;
     }
@@ -61,7 +67,10 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (typeof body.date === "string") {
       const parsedDate = new Date(body.date);
       if (Number.isNaN(parsedDate.getTime())) {
-        return NextResponse.json({ error: "Invalid date value" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Invalid date value" },
+          { status: 400 },
+        );
       }
       payload.date = parsedDate;
     }
@@ -73,11 +82,17 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
     return NextResponse.json(meeting);
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
       return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ error: "Failed to update meeting", detail: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update meeting", detail: String(error) },
+      { status: 500 },
+    );
   }
 }
 
@@ -86,10 +101,16 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     await prisma.meeting.delete({ where: { id: params.id } });
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
       return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ error: "Failed to delete meeting", detail: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete meeting", detail: String(error) },
+      { status: 500 },
+    );
   }
 }

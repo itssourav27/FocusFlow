@@ -12,8 +12,12 @@ export default async function MeetingsPage() {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Meetings</h1>
-        <p className="mt-2 text-sm text-slate-500">Capture meeting notes and track related action items.</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+          Meetings
+        </h1>
+        <p className="mt-2 text-sm text-slate-500">
+          Capture meeting notes and track related action items.
+        </p>
       </header>
 
       <section className="grid gap-6 lg:grid-cols-[340px_1fr]">

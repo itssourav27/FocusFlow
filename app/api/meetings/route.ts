@@ -19,7 +19,10 @@ export async function GET() {
 
     return NextResponse.json(meetings);
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch meetings", detail: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch meetings", detail: String(error) },
+      { status: 500 },
+    );
   }
 }
 
@@ -40,7 +43,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (!dateValue || Number.isNaN(dateValue.getTime())) {
-      return NextResponse.json({ error: "A valid date is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "A valid date is required" },
+        { status: 400 },
+      );
     }
 
     const meeting = await prisma.meeting.create({
@@ -53,6 +59,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(meeting, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create meeting", detail: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create meeting", detail: String(error) },
+      { status: 500 },
+    );
   }
 }

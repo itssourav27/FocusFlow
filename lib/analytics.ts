@@ -39,7 +39,8 @@ export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
     }),
   ]);
 
-  const completionRate = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+  const completionRate =
+    totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
   const weekRanges = getWeekRanges(8);
   const tasksCompletedWeekly: WeeklyCompletionDatum[] = await Promise.all(

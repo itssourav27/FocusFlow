@@ -16,10 +16,22 @@ async function main() {
       notes:
         "Reviewed backlog priorities and aligned on sprint scope. Focus on checkout reliability and analytics instrumentation.",
       tasks: [
-        { title: "Break down checkout bug tickets", deadlineOffsetDays: 1, status: "completed" },
-        { title: "Define sprint acceptance criteria", deadlineOffsetDays: 2, status: "completed" },
-        { title: "Prepare dependency risk list", deadlineOffsetDays: 3, status: "pending" }
-      ]
+        {
+          title: "Break down checkout bug tickets",
+          deadlineOffsetDays: 1,
+          status: "completed",
+        },
+        {
+          title: "Define sprint acceptance criteria",
+          deadlineOffsetDays: 2,
+          status: "completed",
+        },
+        {
+          title: "Prepare dependency risk list",
+          deadlineOffsetDays: 3,
+          status: "pending",
+        },
+      ],
     },
     {
       title: "Client Weekly Sync",
@@ -27,10 +39,22 @@ async function main() {
       notes:
         "Shared progress on dashboard revamp and confirmed go-live timeline. Need final sign-off on metrics definitions.",
       tasks: [
-        { title: "Send revised KPI glossary", deadlineOffsetDays: 1, status: "pending" },
-        { title: "Capture stakeholder approvals", deadlineOffsetDays: 4, status: "pending" },
-        { title: "Publish sync recap in workspace", deadlineOffsetDays: 0, status: "completed" }
-      ]
+        {
+          title: "Send revised KPI glossary",
+          deadlineOffsetDays: 1,
+          status: "pending",
+        },
+        {
+          title: "Capture stakeholder approvals",
+          deadlineOffsetDays: 4,
+          status: "pending",
+        },
+        {
+          title: "Publish sync recap in workspace",
+          deadlineOffsetDays: 0,
+          status: "completed",
+        },
+      ],
     },
     {
       title: "Engineering Retrospective",
@@ -38,11 +62,23 @@ async function main() {
       notes:
         "Team identified flaky test hotspots and CI bottlenecks. Agreed to add ownership rotations for incident triage.",
       tasks: [
-        { title: "Create flaky test audit board", deadlineOffsetDays: 5, status: "pending" },
-        { title: "Document CI retry policy", deadlineOffsetDays: 2, status: "completed" },
-        { title: "Set up on-call handoff checklist", deadlineOffsetDays: 6, status: "pending" }
-      ]
-    }
+        {
+          title: "Create flaky test audit board",
+          deadlineOffsetDays: 5,
+          status: "pending",
+        },
+        {
+          title: "Document CI retry policy",
+          deadlineOffsetDays: 2,
+          status: "completed",
+        },
+        {
+          title: "Set up on-call handoff checklist",
+          deadlineOffsetDays: 6,
+          status: "pending",
+        },
+      ],
+    },
   ];
 
   for (const meetingSeed of meetings) {
@@ -62,18 +98,20 @@ async function main() {
             return {
               title: task.title,
               deadline,
-              status: task.status
+              status: task.status,
             };
-          })
-        }
-      }
+          }),
+        },
+      },
     });
   }
 
   const meetingCount = await prisma.meeting.count();
   const taskCount = await prisma.task.count();
 
-  console.log(`Seed completed: ${meetingCount} meetings and ${taskCount} tasks created.`);
+  console.log(
+    `Seed completed: ${meetingCount} meetings and ${taskCount} tasks created.`,
+  );
 }
 
 main()

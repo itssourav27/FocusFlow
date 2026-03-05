@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 type ToastVariant = "success" | "error" | "info";
 
@@ -43,10 +50,20 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const pushToast = useCallback(
-    ({ title, description, variant = "info", actionLabel, onAction, durationMs = 3500 }: ToastPayload) => {
+    ({
+      title,
+      description,
+      variant = "info",
+      actionLabel,
+      onAction,
+      durationMs = 3500,
+    }: ToastPayload) => {
       const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-      setToasts((current) => [...current, { id, title, description, variant, actionLabel, onAction }]);
+      setToasts((current) => [
+        ...current,
+        { id, title, description, variant, actionLabel, onAction },
+      ]);
 
       window.setTimeout(() => {
         removeToast(id);
@@ -68,7 +85,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             className={`pointer-events-auto rounded-xl border px-4 py-3 shadow-sm ${getToastStyles(toast.variant ?? "info")}`}
           >
             <p className="text-sm font-semibold">{toast.title}</p>
-            {toast.description ? <p className="mt-1 text-xs opacity-90">{toast.description}</p> : null}
+            {toast.description ? (
+              <p className="mt-1 text-xs opacity-90">{toast.description}</p>
+            ) : null}
             {toast.actionLabel && toast.onAction ? (
               <button
                 type="button"

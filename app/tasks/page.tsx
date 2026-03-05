@@ -22,7 +22,8 @@ const filters = [
 
 export default async function TasksPage({ searchParams }: TasksPageProps) {
   const statusParam = searchParams?.status;
-  const selectedFilter = statusParam && isTaskStatus(statusParam) ? statusParam : "all";
+  const selectedFilter =
+    statusParam && isTaskStatus(statusParam) ? statusParam : "all";
 
   const [tasks, meetings] = await Promise.all([
     selectedFilter === "all" ? getTasks() : getTasks(selectedFilter),
@@ -32,12 +33,21 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Tasks</h1>
-        <p className="mt-2 text-sm text-slate-500">View, edit, and complete action items across meetings.</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+          Tasks
+        </h1>
+        <p className="mt-2 text-sm text-slate-500">
+          View, edit, and complete action items across meetings.
+        </p>
       </header>
 
       <section className="grid gap-6 lg:grid-cols-[340px_1fr]">
-        <TaskForm meetings={meetings.map((meeting) => ({ id: meeting.id, title: meeting.title }))} />
+        <TaskForm
+          meetings={meetings.map((meeting) => ({
+            id: meeting.id,
+            title: meeting.title,
+          }))}
+        />
 
         <div>
           <div className="mb-4 flex flex-wrap gap-2">
@@ -47,7 +57,11 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
               return (
                 <Link
                   key={filter.value}
-                  href={filter.value === "all" ? "/tasks" : `/tasks?status=${filter.value}`}
+                  href={
+                    filter.value === "all"
+                      ? "/tasks"
+                      : `/tasks?status=${filter.value}`
+                  }
                   className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                     isActive
                       ? "border-indigo-600 bg-indigo-600 text-white"

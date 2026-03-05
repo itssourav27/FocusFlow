@@ -3,7 +3,10 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
-import { MEETING_CREATED_EVENT, MeetingCreatedEventPayload } from "@/lib/client-events";
+import {
+  MEETING_CREATED_EVENT,
+  MeetingCreatedEventPayload,
+} from "@/lib/client-events";
 import { useToast } from "@/components/ui/ToastProvider";
 
 type MeetingFormProps = {
@@ -48,11 +51,15 @@ export default function MeetingForm({
       });
 
       if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        const data = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
         throw new Error(data?.error ?? "Unable to save meeting");
       }
 
-      const meeting = (await response.json().catch(() => null)) as MeetingCreatedEventPayload | null;
+      const meeting = (await response
+        .json()
+        .catch(() => null)) as MeetingCreatedEventPayload | null;
 
       if (method === "POST") {
         setTitle("");
@@ -60,7 +67,11 @@ export default function MeetingForm({
         setNotes("");
 
         if (meeting && typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent<MeetingCreatedEventPayload>(MEETING_CREATED_EVENT, { detail: meeting }));
+          window.dispatchEvent(
+            new CustomEvent<MeetingCreatedEventPayload>(MEETING_CREATED_EVENT, {
+              detail: meeting,
+            }),
+          );
         }
       }
 
@@ -71,20 +82,33 @@ export default function MeetingForm({
 
       router.refresh();
     } catch (submitError) {
-      const message = submitError instanceof Error ? submitError.message : "Unable to save meeting";
+      const message =
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to save meeting";
       setError(message);
-      pushToast({ title: "Meeting save failed", description: message, variant: "error" });
+      pushToast({
+        title: "Meeting save failed",
+        description: message,
+        variant: "error",
+      });
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+    >
       <h2 className="text-lg font-semibold text-slate-900">{heading}</h2>
 
       <div>
-        <label htmlFor="meeting-title" className="mb-1 block text-sm font-medium text-slate-700">
+        <label
+          htmlFor="meeting-title"
+          className="mb-1 block text-sm font-medium text-slate-700"
+        >
           Title
         </label>
         <input
@@ -99,7 +123,10 @@ export default function MeetingForm({
       </div>
 
       <div>
-        <label htmlFor="meeting-date" className="mb-1 block text-sm font-medium text-slate-700">
+        <label
+          htmlFor="meeting-date"
+          className="mb-1 block text-sm font-medium text-slate-700"
+        >
           Date
         </label>
         <input
@@ -113,7 +140,10 @@ export default function MeetingForm({
       </div>
 
       <div>
-        <label htmlFor="meeting-notes" className="mb-1 block text-sm font-medium text-slate-700">
+        <label
+          htmlFor="meeting-notes"
+          className="mb-1 block text-sm font-medium text-slate-700"
+        >
           Notes
         </label>
         <textarea
