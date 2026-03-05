@@ -145,4 +145,4 @@ DATABASE_URL="file:./dev.db"
 ## Health Check
 
 - `GET /api/health` returns service and database readiness.
-- `GET /api/tasks/counts` returns task counts for `all`, `pending`, `completed`, and `overdue`.
+- `GET /api/tasks/counts` returns task counts for `all`, `pending`, `completed`, `dueSoon`, and `overdue`.

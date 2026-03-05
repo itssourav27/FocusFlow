@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const STORAGE_KEY = "focusflow.tasks.view";
 
-type TaskFilter = "all" | "pending" | "completed" | "overdue";
+type TaskFilter = "all" | "pending" | "completed" | "overdue" | "due-soon";
 type TaskSort = "newest" | "oldest" | "deadline-asc" | "deadline-desc";
 
 type TaskViewPreference = {
@@ -19,7 +19,8 @@ function isTaskFilter(value: string | null): value is TaskFilter {
     value === "all" ||
     value === "pending" ||
     value === "completed" ||
-    value === "overdue"
+    value === "overdue" ||
+    value === "due-soon"
   );
 }
 
@@ -33,7 +34,9 @@ function isTaskSort(value: string | null): value is TaskSort {
 }
 
 function getDefaultSort(filter: TaskFilter): TaskSort {
-  return filter === "overdue" ? "deadline-asc" : "newest";
+  return filter === "overdue" || filter === "due-soon"
+    ? "deadline-asc"
+    : "newest";
 }
 
 function getTasksHref(filter: TaskFilter, sort: TaskSort, q?: string): string {
@@ -105,9 +108,7 @@ export default function TaskViewPreferences() {
       const parsedSort = parsed.sort ?? null;
       const parsedQuery = typeof parsed.q === "string" ? parsed.q.trim() : "";
 
-      const savedStatus = isTaskFilter(parsedStatus)
-        ? parsedStatus
-        : "all";
+      const savedStatus = isTaskFilter(parsedStatus) ? parsedStatus : "all";
       const savedSort = isTaskSort(parsedSort)
         ? parsedSort
         : getDefaultSort(savedStatus);

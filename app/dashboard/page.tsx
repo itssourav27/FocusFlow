@@ -9,12 +9,22 @@ export default async function DashboardPage() {
   const overview = await getDashboardOverview();
 
   const stats: DashboardStat[] = [
-    { label: "Total Meetings", value: overview.totalMeetings, href: "/meetings" },
+    {
+      label: "Total Meetings",
+      value: overview.totalMeetings,
+      href: "/meetings",
+    },
     { label: "Total Tasks", value: overview.totalTasks, href: "/tasks" },
     {
       label: "Pending Tasks",
       value: overview.pendingTasks,
       href: "/tasks?status=pending",
+    },
+    {
+      label: "Due Soon",
+      value: overview.dueSoonTasks,
+      helperText: "Pending tasks due in 3 days",
+      href: "/tasks?status=due-soon",
     },
     {
       label: "Overdue Tasks",

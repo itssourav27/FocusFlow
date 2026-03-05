@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { addDays, endOfDay, startOfToday } from "date-fns";
+
 import { isTaskStatus } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 
@@ -17,6 +19,14 @@ export async function GET(request: NextRequest) {
               lt: new Date(),
             },
           }
+        : statusParam === "due-soon"
+          ? {
+              status: "pending" as const,
+              deadline: {
+                gte: startOfToday(),
+                lte: endOfDay(addDays(startOfToday(), 3)),
+              },
+            }
         : statusParam && isTaskStatus(statusParam)
           ? { status: statusParam }
           : undefined;

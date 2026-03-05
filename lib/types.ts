@@ -44,6 +44,7 @@ export type DashboardOverview = {
   totalMeetings: number;
   totalTasks: number;
   pendingTasks: number;
+  dueSoonTasks: number;
   completedTasks: number;
   overdueTasks: number;
   completionRate: number;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import TaskForm from "@/components/tasks/TaskForm";
+import UrgencyLegend from "@/components/tasks/UrgencyLegend";
 import TaskList from "@/components/tasks/TaskList";
 import TaskViewPreferences from "@/components/tasks/TaskViewPreferences";
 import { isTaskStatus } from "@/lib/constants";
@@ -23,10 +24,11 @@ type TasksPageProps = {
 };
 
 const filters = [
-  { label: "All", value: "all" },
-  { label: "Pending", value: "pending" },
-  { label: "Completed", value: "completed" },
-  { label: "Overdue", value: "overdue" },
+  { label: "All", value: "all", countKey: "all" },
+  { label: "Pending", value: "pending", countKey: "pending" },
+  { label: "Completed", value: "completed", countKey: "completed" },
+  { label: "Due Soon", value: "due-soon", countKey: "dueSoon" },
+  { label: "Overdue", value: "overdue", countKey: "overdue" },
 ] as const;
 
 const sortOptions = [
@@ -37,7 +39,12 @@ const sortOptions = [
 ] as const;
 
 function isTaskFilter(value: string): value is TaskFilter {
-  return value === "all" || value === "overdue" || isTaskStatus(value);
+  return (
+    value === "all" ||
+    value === "overdue" ||
+    value === "due-soon" ||
+    isTaskStatus(value)
+  );
 }
 
 function isTaskSort(value: string): value is TaskSort {
@@ -50,10 +57,16 @@ function isTaskSort(value: string): value is TaskSort {
 }
 
 function getDefaultSort(filter: TaskFilter): TaskSort {
-  return filter === "overdue" ? "deadline-asc" : "newest";
+  return filter === "overdue" || filter === "due-soon"
+    ? "deadline-asc"
+    : "newest";
 }
 
-function getTasksHref(filter: TaskFilter, sort: TaskSort, query: string): string {
+function getTasksHref(
+  filter: TaskFilter,
+  sort: TaskSort,
+  query: string,
+): string {
   const params = new URLSearchParams();
 
   if (filter !== "all") {
@@ -97,6 +110,8 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
       ? "all"
       : selectedFilter === "overdue"
         ? "overdue"
+        : selectedFilter === "due-soon"
+          ? "due soon"
         : selectedFilter;
 
   const emptyStateMessage = searchQuery
@@ -172,7 +187,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
                         : "border-slate-200 bg-white text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    {filter.label} ({counts[filter.value]})
+                    {filter.label} ({counts[filter.countKey]})
                   </Link>
                 );
               })}
@@ -207,7 +222,9 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
                     >
                       {option.label}
                       {isActive && isDefaultForFilter ? (
-                        <span className="ml-1.5 text-xs opacity-80">default</span>
+                        <span className="ml-1.5 text-xs opacity-80">
+                          default
+                        </span>
                       ) : null}
                     </Link>
                   );
@@ -226,7 +243,9 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
                   Reset view
                 </Link>
               ) : (
-                <span className="px-1 text-xs text-slate-400">Default view</span>
+                <span className="px-1 text-xs text-slate-400">
+                  Default view
+                </span>
               )}
             </div>
           </div>
@@ -236,6 +255,8 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
             {selectedFilter !== "all" ? ` in ${filterLabel}` : ""}
             {searchQuery ? ` for "${searchQuery}"` : ""}.
           </p>
+
+          <UrgencyLegend />
 
           <TaskList
             tasks={tasks}

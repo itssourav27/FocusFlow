@@ -1,6 +1,6 @@
 "use client";
 
-import { format, isBefore, startOfToday } from "date-fns";
+import { addDays, endOfDay, format, isBefore, startOfToday } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -15,7 +15,7 @@ import { TaskListItem, TaskStatus } from "@/lib/types";
 
 type TaskListProps = {
   tasks: TaskListItem[];
-  statusFilter?: "all" | TaskStatus | "overdue";
+  statusFilter?: "all" | TaskStatus | "overdue" | "due-soon";
   meetingScopeId?: string;
   emptyStateMessage?: string;
 };
@@ -31,16 +31,24 @@ function toDate(value: Date | string): Date {
 
 function shouldIncludeTask(
   payload: TaskCreatedEventPayload,
-  statusFilter: "all" | TaskStatus | "overdue",
+  statusFilter: "all" | TaskStatus | "overdue" | "due-soon",
   meetingScopeId?: string,
 ) {
+  const payloadDeadline = new Date(payload.deadline);
+  const isDueSoon =
+    payload.status === "pending" &&
+    !isBefore(payloadDeadline, startOfToday()) &&
+    payloadDeadline <= endOfDay(addDays(startOfToday(), 3));
+
   const matchesScope = !meetingScopeId || payload.meetingId === meetingScopeId;
   const matchesFilter =
     statusFilter === "all"
       ? true
       : statusFilter === "overdue"
         ? payload.status === "pending" &&
-          isBefore(new Date(payload.deadline), startOfToday())
+          isBefore(payloadDeadline, startOfToday())
+        : statusFilter === "due-soon"
+          ? isDueSoon
         : payload.status === statusFilter;
 
   return matchesScope && matchesFilter;
@@ -313,6 +321,10 @@ export default function TaskList({
     <div className="space-y-3">
       {taskState.map((task) => {
         const deadlineDate = toDate(task.deadline);
+        const isDueSoon =
+          task.status === "pending" &&
+          !isBefore(deadlineDate, startOfToday()) &&
+          deadlineDate <= endOfDay(addDays(startOfToday(), 3));
         const isOverdue =
           task.status === "pending" && isBefore(deadlineDate, startOfToday());
 
@@ -323,6 +335,7 @@ export default function TaskList({
             title={task.title}
             meetingTitle={task.meetingTitle}
             status={task.status}
+            isDueSoon={isDueSoon}
             isOverdue={isOverdue}
             isBusy={Boolean(busyTaskIds[task.id])}
             onToggleStatus={onToggleStatus}

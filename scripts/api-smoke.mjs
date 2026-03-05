@@ -91,10 +91,7 @@ async function run() {
     const health = await request("/api/health");
     assert(health.response.status === 200, "Expected 200 from /api/health");
     assert(health.body?.status === "ok", "Expected service health to be ok");
-    assert(
-      health.body?.database === "ok",
-      "Expected database health to be ok",
-    );
+    assert(health.body?.database === "ok", "Expected database health to be ok");
 
     const initialCounts = await request("/api/tasks/counts");
     assert(
@@ -105,7 +102,8 @@ async function run() {
       typeof initialCounts.body?.all === "number" &&
         typeof initialCounts.body?.pending === "number" &&
         typeof initialCounts.body?.completed === "number" &&
-        typeof initialCounts.body?.overdue === "number",
+        typeof initialCounts.body?.overdue === "number" &&
+        typeof initialCounts.body?.dueSoon === "number",
       "Expected numeric task counts",
     );
 
@@ -182,6 +180,10 @@ async function run() {
       countsAfterCreate.body?.pending === initialCounts.body.pending + 1,
       "Expected pending task count to increase after create",
     );
+    assert(
+      countsAfterCreate.body?.dueSoon === initialCounts.body.dueSoon + 1,
+      "Expected due soon task count to increase after create",
+    );
 
     const updatedTask = await request(`/api/tasks/${taskId}`, {
       method: "PATCH",
@@ -205,6 +207,10 @@ async function run() {
       countsAfterComplete.body?.completed === initialCounts.body.completed + 1,
       "Expected completed task count to increase after completion",
     );
+    assert(
+      countsAfterComplete.body?.dueSoon === initialCounts.body.dueSoon,
+      "Expected due soon task count to return after completion",
+    );
 
     const deletedTask = await request(`/api/tasks/${taskId}`, {
       method: "DELETE",
@@ -222,6 +228,10 @@ async function run() {
     assert(
       countsAfterDelete.body?.completed === initialCounts.body.completed,
       "Expected completed task count to return after delete",
+    );
+    assert(
+      countsAfterDelete.body?.dueSoon === initialCounts.body.dueSoon,
+      "Expected due soon task count to return after delete",
     );
 
     const deletedMeeting = await request(`/api/meetings/${meetingId}`, {

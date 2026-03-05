@@ -4,10 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 
-import {
-  TASK_CREATED_EVENT,
-  TASKS_CHANGED_EVENT,
-} from "@/lib/client-events";
+import { TASK_CREATED_EVENT, TASKS_CHANGED_EVENT } from "@/lib/client-events";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
@@ -19,6 +16,7 @@ const navItems = [
 export default function Navbar() {
   const pathname = usePathname();
   const [overdueCount, setOverdueCount] = useState<number | null>(null);
+  const [dueSoonCount, setDueSoonCount] = useState<number | null>(null);
   const isRefreshingRef = useRef(false);
   const hasPendingRefreshRef = useRef(false);
   const controllerRef = useRef<AbortController | null>(null);
@@ -50,9 +48,15 @@ export default function Navbar() {
           return;
         }
 
-        const data = (await response.json()) as { overdue?: number };
+        const data = (await response.json()) as {
+          overdue?: number;
+          dueSoon?: number;
+        };
         if (isActive && typeof data.overdue === "number") {
           setOverdueCount(data.overdue);
+        }
+        if (isActive && typeof data.dueSoon === "number") {
+          setDueSoonCount(data.dueSoon);
         }
       } catch {
         // Keep navbar usable even if count fetch fails.
@@ -131,10 +135,44 @@ export default function Navbar() {
                       {overdueCount}
                     </span>
                   ) : null}
+                  {item.href === "/tasks" && dueSoonCount && dueSoonCount > 0 ? (
+                    <span
+                      className={`ml-1 inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-semibold ${
+                        isActive
+                          ? "bg-amber-200 text-amber-900"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      {dueSoonCount}
+                    </span>
+                  ) : null}
                 </Link>
               </li>
             );
           })}
+
+          {dueSoonCount && dueSoonCount > 0 ? (
+            <Suspense
+              fallback={
+                <li>
+                  <Link
+                    href="/tasks?status=due-soon"
+                    className="rounded-full px-3 py-1.5 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-100 sm:px-4"
+                  >
+                    Due Soon
+                  </Link>
+                </li>
+              }
+            >
+              <TaskStatusQuickLink
+                pathname={pathname}
+                status="due-soon"
+                label="Due Soon"
+                activeClassName="bg-amber-500 text-white shadow-sm"
+                idleClassName="text-amber-700 hover:bg-amber-100"
+              />
+            </Suspense>
+          ) : null}
 
           {overdueCount && overdueCount > 0 ? (
             <Suspense
@@ -149,7 +187,13 @@ export default function Navbar() {
                 </li>
               }
             >
-              <OverdueQuickLink pathname={pathname} />
+              <TaskStatusQuickLink
+                pathname={pathname}
+                status="overdue"
+                label="Overdue"
+                activeClassName="bg-rose-600 text-white shadow-sm"
+                idleClassName="text-rose-700 hover:bg-rose-100"
+              />
             </Suspense>
           ) : null}
         </ul>
@@ -158,22 +202,32 @@ export default function Navbar() {
   );
 }
 
-function OverdueQuickLink({ pathname }: { pathname: string }) {
+function TaskStatusQuickLink({
+  pathname,
+  status,
+  label,
+  activeClassName,
+  idleClassName,
+}: {
+  pathname: string;
+  status: "overdue" | "due-soon";
+  label: string;
+  activeClassName: string;
+  idleClassName: string;
+}) {
   const searchParams = useSearchParams();
   const isOverdueView =
-    pathname === "/tasks" && searchParams.get("status") === "overdue";
+    pathname === "/tasks" && searchParams.get("status") === status;
 
   return (
     <li>
       <Link
-        href="/tasks?status=overdue"
+        href={`/tasks?status=${status}`}
         className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors sm:px-4 ${
-          isOverdueView
-            ? "bg-rose-600 text-white shadow-sm"
-            : "text-rose-700 hover:bg-rose-100"
+          isOverdueView ? activeClassName : idleClassName
         }`}
       >
-        Overdue
+        {label}
       </Link>
     </li>
   );

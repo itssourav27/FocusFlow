@@ -1,8 +1,10 @@
+import { addDays, endOfDay, startOfToday } from "date-fns";
+
 import { prisma } from "@/lib/prisma";
 import { TaskStatus } from "@/lib/constants";
 import { TaskListItem } from "@/lib/types";
 
-export type TaskFilter = "all" | TaskStatus | "overdue";
+export type TaskFilter = "all" | TaskStatus | "overdue" | "due-soon";
 export type TaskSort = "newest" | "oldest" | "deadline-asc" | "deadline-desc";
 
 export type TaskFilterCounts = {
@@ -10,6 +12,7 @@ export type TaskFilterCounts = {
   pending: number;
   completed: number;
   overdue: number;
+  dueSoon: number;
 };
 
 export async function getTasks(
@@ -27,6 +30,14 @@ export async function getTasks(
               lt: new Date(),
             },
           }
+        : filter === "due-soon"
+          ? {
+              status: "pending" as const,
+              deadline: {
+                gte: startOfToday(),
+                lte: endOfDay(addDays(startOfToday(), 3)),
+              },
+            }
         : { status: filter };
 
   const trimmedQuery = query?.trim();
@@ -86,7 +97,7 @@ export async function getTasks(
 }
 
 export async function getTaskFilterCounts(): Promise<TaskFilterCounts> {
-  const [all, pending, completed, overdue] = await Promise.all([
+  const [all, pending, completed, overdue, dueSoon] = await Promise.all([
     prisma.task.count(),
     prisma.task.count({ where: { status: "pending" } }),
     prisma.task.count({ where: { status: "completed" } }),
@@ -98,7 +109,16 @@ export async function getTaskFilterCounts(): Promise<TaskFilterCounts> {
         },
       },
     }),
+    prisma.task.count({
+      where: {
+        status: "pending",
+        deadline: {
+          gte: startOfToday(),
+          lte: endOfDay(addDays(startOfToday(), 3)),
+        },
+      },
+    }),
   ]);
 
-  return { all, pending, completed, overdue };
+  return { all, pending, completed, overdue, dueSoon };
 }

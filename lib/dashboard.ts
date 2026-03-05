@@ -1,4 +1,12 @@
-import { endOfWeek, format, startOfWeek, subWeeks } from "date-fns";
+import {
+  addDays,
+  endOfDay,
+  endOfWeek,
+  format,
+  startOfToday,
+  startOfWeek,
+  subWeeks,
+} from "date-fns";
 
 import { prisma } from "@/lib/prisma";
 import { DashboardOverview, WeeklyCompletionDatum } from "@/lib/types";
@@ -20,21 +28,36 @@ function getRecentWeekRanges(numberOfWeeks: number) {
 }
 
 export async function getDashboardOverview(): Promise<DashboardOverview> {
-  const [totalMeetings, totalTasks, pendingTasks, completedTasks, overdueTasks] =
-    await Promise.all([
-      prisma.meeting.count(),
-      prisma.task.count(),
-      prisma.task.count({ where: { status: "pending" } }),
-      prisma.task.count({ where: { status: "completed" } }),
-      prisma.task.count({
-        where: {
-          status: "pending",
-          deadline: {
-            lt: new Date(),
-          },
+  const [
+    totalMeetings,
+    totalTasks,
+    pendingTasks,
+    dueSoonTasks,
+    completedTasks,
+    overdueTasks,
+  ] = await Promise.all([
+    prisma.meeting.count(),
+    prisma.task.count(),
+    prisma.task.count({ where: { status: "pending" } }),
+    prisma.task.count({
+      where: {
+        status: "pending",
+        deadline: {
+          gte: startOfToday(),
+          lte: endOfDay(addDays(startOfToday(), 3)),
         },
-      }),
-    ]);
+      },
+    }),
+    prisma.task.count({ where: { status: "completed" } }),
+    prisma.task.count({
+      where: {
+        status: "pending",
+        deadline: {
+          lt: new Date(),
+        },
+      },
+    }),
+  ]);
 
   const completionRate =
     totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
@@ -64,6 +87,7 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
     totalMeetings,
     totalTasks,
     pendingTasks,
+    dueSoonTasks,
     completedTasks,
     overdueTasks,
     completionRate,
