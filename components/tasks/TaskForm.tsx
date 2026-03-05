@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 
 import {
   TASK_CREATED_EVENT,
+  TASKS_CHANGED_EVENT,
   TaskCreatedEventPayload,
 } from "@/lib/client-events";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -72,6 +73,7 @@ export default function TaskForm({
             detail: task,
           }),
         );
+        window.dispatchEvent(new Event(TASKS_CHANGED_EVENT));
       }
 
       pushToast({ title: "Task created", variant: "success" });

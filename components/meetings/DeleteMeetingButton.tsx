@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { useToast } from "@/components/ui/ToastProvider";
+import { TASKS_CHANGED_EVENT } from "@/lib/client-events";
 
 type DeleteMeetingButtonProps = {
   meetingId: string;
@@ -59,6 +60,7 @@ export default function DeleteMeetingButton({
         }
 
         pushToast({ title: "Meeting deleted", variant: "success" });
+        window.dispatchEvent(new Event(TASKS_CHANGED_EVENT));
         router.push("/meetings");
         router.refresh();
       } catch (error) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { format } from "date-fns";
+import { format, isBefore, startOfToday } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -8,14 +8,16 @@ import TaskItem from "@/components/tasks/TaskItem";
 import { useToast } from "@/components/ui/ToastProvider";
 import {
   TASK_CREATED_EVENT,
+  TASKS_CHANGED_EVENT,
   TaskCreatedEventPayload,
 } from "@/lib/client-events";
 import { TaskListItem, TaskStatus } from "@/lib/types";
 
 type TaskListProps = {
   tasks: TaskListItem[];
-  statusFilter?: "all" | TaskStatus;
+  statusFilter?: "all" | TaskStatus | "overdue";
   meetingScopeId?: string;
+  emptyStateMessage?: string;
 };
 
 type PendingDeleteItem = {
@@ -29,12 +31,17 @@ function toDate(value: Date | string): Date {
 
 function shouldIncludeTask(
   payload: TaskCreatedEventPayload,
-  statusFilter: "all" | TaskStatus,
+  statusFilter: "all" | TaskStatus | "overdue",
   meetingScopeId?: string,
 ) {
   const matchesScope = !meetingScopeId || payload.meetingId === meetingScopeId;
   const matchesFilter =
-    statusFilter === "all" || payload.status === statusFilter;
+    statusFilter === "all"
+      ? true
+      : statusFilter === "overdue"
+        ? payload.status === "pending" &&
+          isBefore(new Date(payload.deadline), startOfToday())
+        : payload.status === statusFilter;
 
   return matchesScope && matchesFilter;
 }
@@ -43,6 +50,7 @@ export default function TaskList({
   tasks,
   statusFilter = "all",
   meetingScopeId,
+  emptyStateMessage = "No tasks found.",
 }: TaskListProps) {
   const router = useRouter();
   const { pushToast } = useToast();
@@ -141,6 +149,7 @@ export default function TaskList({
         title: nextStatus === "completed" ? "Task completed" : "Task reopened",
         variant: "success",
       });
+      window.dispatchEvent(new Event(TASKS_CHANGED_EVENT));
       router.refresh();
     } catch (error) {
       setTaskState(previous);
@@ -186,6 +195,7 @@ export default function TaskList({
 
         delete pendingDeletesRef.current[id];
         pushToast({ title: "Task deleted", variant: "success" });
+        window.dispatchEvent(new Event(TASKS_CHANGED_EVENT));
         router.refresh();
       } catch (error) {
         const pending = pendingDeletesRef.current[id];
@@ -275,6 +285,7 @@ export default function TaskList({
       }
 
       pushToast({ title: "Task updated", variant: "success" });
+      window.dispatchEvent(new Event(TASKS_CHANGED_EVENT));
       router.refresh();
     } catch (error) {
       setTaskState(previous);
@@ -293,27 +304,34 @@ export default function TaskList({
   if (!hasTasks) {
     return (
       <p className="rounded-xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">
-        No tasks found.
+        {emptyStateMessage}
       </p>
     );
   }
 
   return (
     <div className="space-y-3">
-      {taskState.map((task) => (
-        <TaskItem
-          key={task.id}
-          id={task.id}
-          title={task.title}
-          meetingTitle={task.meetingTitle}
-          status={task.status}
-          isBusy={Boolean(busyTaskIds[task.id])}
-          onToggleStatus={onToggleStatus}
-          onDelete={onDelete}
-          onSave={onSave}
-          deadline={format(toDate(task.deadline), "yyyy-MM-dd")}
-        />
-      ))}
+      {taskState.map((task) => {
+        const deadlineDate = toDate(task.deadline);
+        const isOverdue =
+          task.status === "pending" && isBefore(deadlineDate, startOfToday());
+
+        return (
+          <TaskItem
+            key={task.id}
+            id={task.id}
+            title={task.title}
+            meetingTitle={task.meetingTitle}
+            status={task.status}
+            isOverdue={isOverdue}
+            isBusy={Boolean(busyTaskIds[task.id])}
+            onToggleStatus={onToggleStatus}
+            onDelete={onDelete}
+            onSave={onSave}
+            deadline={format(deadlineDate, "yyyy-MM-dd")}
+          />
+        );
+      })}
     </div>
   );
 }

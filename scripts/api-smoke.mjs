@@ -13,7 +13,7 @@ async function waitForServerReady(timeoutMs = 30000) {
 
   while (Date.now() - start < timeoutMs) {
     try {
-      const response = await fetch(`${BASE_URL}/api/meetings`);
+      const response = await fetch(`${BASE_URL}/api/health`);
       if (response.ok) {
         return;
       }
@@ -88,6 +88,43 @@ async function run() {
   try {
     await waitForServerReady();
 
+    const health = await request("/api/health");
+    assert(health.response.status === 200, "Expected 200 from /api/health");
+    assert(health.body?.status === "ok", "Expected service health to be ok");
+    assert(
+      health.body?.database === "ok",
+      "Expected database health to be ok",
+    );
+
+    const initialCounts = await request("/api/tasks/counts");
+    assert(
+      initialCounts.response.status === 200,
+      "Expected 200 from /api/tasks/counts",
+    );
+    assert(
+      typeof initialCounts.body?.all === "number" &&
+        typeof initialCounts.body?.pending === "number" &&
+        typeof initialCounts.body?.completed === "number" &&
+        typeof initialCounts.body?.overdue === "number",
+      "Expected numeric task counts",
+    );
+
+    const invalidQueryFallback = await request(
+      "/api/tasks?status=not-a-real-status&sort=not-a-real-sort",
+    );
+    assert(
+      invalidQueryFallback.response.status === 200,
+      "Expected 200 for invalid tasks query params",
+    );
+    assert(
+      Array.isArray(invalidQueryFallback.body),
+      "Expected tasks response body to be an array for invalid query params",
+    );
+    assert(
+      invalidQueryFallback.body.length === initialCounts.body.all,
+      "Expected invalid query params to fall back to all tasks",
+    );
+
     const meetingPayload = {
       title: "API Smoke Meeting",
       date: new Date().toISOString(),
@@ -136,6 +173,16 @@ async function run() {
 
     const taskId = createdTask.body.id;
 
+    const countsAfterCreate = await request("/api/tasks/counts");
+    assert(
+      countsAfterCreate.body?.all === initialCounts.body.all + 1,
+      "Expected total task count to increase after create",
+    );
+    assert(
+      countsAfterCreate.body?.pending === initialCounts.body.pending + 1,
+      "Expected pending task count to increase after create",
+    );
+
     const updatedTask = await request(`/api/tasks/${taskId}`, {
       method: "PATCH",
       body: JSON.stringify({ status: "completed" }),
@@ -149,12 +196,32 @@ async function run() {
       "Task status was not updated",
     );
 
+    const countsAfterComplete = await request("/api/tasks/counts");
+    assert(
+      countsAfterComplete.body?.pending === initialCounts.body.pending,
+      "Expected pending task count to return after completion",
+    );
+    assert(
+      countsAfterComplete.body?.completed === initialCounts.body.completed + 1,
+      "Expected completed task count to increase after completion",
+    );
+
     const deletedTask = await request(`/api/tasks/${taskId}`, {
       method: "DELETE",
     });
     assert(
       deletedTask.response.status === 204,
       "Expected 204 when deleting task",
+    );
+
+    const countsAfterDelete = await request("/api/tasks/counts");
+    assert(
+      countsAfterDelete.body?.all === initialCounts.body.all,
+      "Expected total task count to return after delete",
+    );
+    assert(
+      countsAfterDelete.body?.completed === initialCounts.body.completed,
+      "Expected completed task count to return after delete",
     );
 
     const deletedMeeting = await request(`/api/meetings/${meetingId}`, {

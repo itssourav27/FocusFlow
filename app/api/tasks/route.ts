@@ -6,12 +6,54 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: NextRequest) {
   try {
     const statusParam = request.nextUrl.searchParams.get("status");
+    const sortParam = request.nextUrl.searchParams.get("sort");
+    const queryParam = request.nextUrl.searchParams.get("q")?.trim();
+
+    const statusWhere =
+      statusParam === "overdue"
+        ? {
+            status: "pending" as const,
+            deadline: {
+              lt: new Date(),
+            },
+          }
+        : statusParam && isTaskStatus(statusParam)
+          ? { status: statusParam }
+          : undefined;
+
+    const where = {
+      ...(statusWhere ? statusWhere : {}),
+      ...(queryParam
+        ? {
+            OR: [
+              {
+                title: {
+                  contains: queryParam,
+                },
+              },
+              {
+                meeting: {
+                  title: {
+                    contains: queryParam,
+                  },
+                },
+              },
+            ],
+          }
+        : {}),
+    };
+
+    const orderBy =
+      sortParam === "oldest"
+        ? [{ createdAt: "asc" as const }]
+        : sortParam === "deadline-asc"
+          ? [{ deadline: "asc" as const }, { createdAt: "desc" as const }]
+          : sortParam === "deadline-desc"
+            ? [{ deadline: "desc" as const }, { createdAt: "desc" as const }]
+            : [{ createdAt: "desc" as const }];
 
     const tasks = await prisma.task.findMany({
-      where:
-        statusParam && isTaskStatus(statusParam)
-          ? { status: statusParam }
-          : undefined,
+      where: Object.keys(where).length > 0 ? where : undefined,
       include: {
         meeting: {
           select: {
@@ -20,9 +62,7 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy,
     });
 
     return NextResponse.json(tasks);

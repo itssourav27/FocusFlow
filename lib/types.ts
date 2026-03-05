@@ -2,6 +2,7 @@ export type DashboardStat = {
   label: string;
   value: number | string;
   helperText?: string;
+  href?: string;
 };
 
 export type TaskStatus = "pending" | "completed";
@@ -44,6 +45,7 @@ export type DashboardOverview = {
   totalTasks: number;
   pendingTasks: number;
   completedTasks: number;
+  overdueTasks: number;
   completionRate: number;
   weeklyCompletedTasks: WeeklyCompletionDatum[];
 };

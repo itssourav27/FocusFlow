@@ -10,6 +10,7 @@ type TaskItemProps = {
   meetingTitle: string;
   title: string;
   status: TaskStatus;
+  isOverdue: boolean;
   isBusy: boolean;
   onToggleStatus: (id: string) => void;
   onDelete: (id: string) => void;
@@ -22,6 +23,7 @@ export default function TaskItem({
   deadline,
   meetingTitle,
   status,
+  isOverdue,
   isBusy,
   onToggleStatus,
   onDelete,
@@ -49,6 +51,11 @@ export default function TaskItem({
           <p className="mt-1 text-xs text-slate-500">
             {meetingTitle} • Due {deadline}
           </p>
+          {isOverdue ? (
+            <span className="mt-2 inline-block rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-medium text-rose-700">
+              Overdue
+            </span>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2">

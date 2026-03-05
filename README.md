@@ -111,6 +111,9 @@ npm run dev
 - `npm run db:seed` - reset and seed demo meetings/tasks
 - `npm run db:reset` - reset DB, reapply migrations, and seed demo data
 - `npm run api:smoke` - run automated API CRUD smoke checks (meetings/tasks)
+- `npm run verify:quick` - run lint, build, and API smoke tests (faster local check)
+- `npm run verify` - run lint, build, DB reset, and API smoke tests in sequence
+- `npm run verify:timed` - run full verification and print total elapsed time
 
 ## Vercel Notes
 
@@ -122,8 +125,14 @@ npm run dev
 
 - GitHub Actions workflow: `.github/workflows/ci.yml`
 - Runs on push and pull requests.
-- Pipeline steps: `npm ci` -> `npm run lint` -> `npm run build` -> `npm run db:reset` -> `npm run api:smoke`
+- Pipeline quality gate: `npm run verify`
 - Additional non-blocking security job: `npm audit --omit=dev --audit-level=high`
+
+## Local Git Hooks
+
+- Husky is enabled via `prepare` script in `package.json`.
+- `pre-commit` runs `npm run lint`.
+- `pre-push` runs `npm run verify:quick`.
 
 ## Environment
 
@@ -132,3 +141,8 @@ npm run dev
 ```env
 DATABASE_URL="file:./dev.db"
 ```
+
+## Health Check
+
+- `GET /api/health` returns service and database readiness.
+- `GET /api/tasks/counts` returns task counts for `all`, `pending`, `completed`, and `overdue`.
