@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FocusFlow - Meeting Notes & Action Tracker
 
-## Getting Started
+FocusFlow is a clean and minimal productivity app for capturing meeting notes and tracking action items.
 
-First, run the development server:
+## Tech Stack
+
+- Next.js 14 (App Router)
+- TypeScript
+- TailwindCSS
+- Prisma ORM
+- SQLite
+- Recharts
+
+## Features
+
+- Dashboard overview
+	- Total meetings
+	- Total tasks
+	- Pending/completed task counts
+	- Completion percentage
+	- Weekly task completion chart
+- Meetings management
+	- Create, list, update, and delete meetings
+	- Meeting details page with notes and linked action items
+- Task management
+	- Create, edit, delete tasks
+	- Toggle task completion status
+	- Filter tasks by status
+	- Optimistic UI interactions
+	- Undo windows for delete actions
+- Analytics
+	- Weekly task completion chart
+	- Task completion rate visualization
+	- Tasks-per-meeting chart
+
+## Project Structure
+
+```text
+app/
+	dashboard/
+	meetings/
+	meetings/[id]/
+	tasks/
+	analytics/
+	api/meetings/
+	api/meetings/[id]/
+	api/tasks/
+	api/tasks/[id]/
+
+components/
+	Navbar.tsx
+	dashboard/
+	meetings/
+	tasks/
+	charts/
+	ui/
+
+lib/
+	prisma.ts
+	dashboard.ts
+	meetings.ts
+	tasks.ts
+	analytics.ts
+	types.ts
+	constants.ts
+	client-events.ts
+
+prisma/
+	schema.prisma
+	migrations/
+```
+
+## Local Setup
+
+1. Install dependencies
+
+```bash
+npm install
+```
+
+2. Apply Prisma migrations
+
+```bash
+npm run prisma:migrate
+```
+
+3. Seed demo data (optional)
+
+```bash
+npm run db:seed
+```
+
+4. Start development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` - start local dev server
+- `npm run build` - production build
+- `npm run start` - run production server
+- `npm run lint` - lint and type checks
+- `npm run prisma:generate` - generate Prisma client
+- `npm run prisma:migrate` - create/apply local migrations
+- `npm run prisma:deploy` - apply committed migrations (CI/production)
+- `npm run prisma:studio` - open Prisma Studio
+- `npm run db:seed` - reset and seed demo meetings/tasks
+- `npm run db:reset` - reset DB, reapply migrations, and seed demo data
+- `npm run api:smoke` - run automated API CRUD smoke checks (meetings/tasks)
 
-## Learn More
+## Vercel Notes
 
-To learn more about Next.js, take a look at the following resources:
+- The project is Vercel-compatible from a Next.js perspective.
+- For Prisma, `postinstall` runs `prisma generate` automatically.
+- SQLite is ideal for local/simple setups. For production-grade persistence on Vercel, use a hosted database and update `DATABASE_URL` accordingly.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`.env`
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```env
+DATABASE_URL="file:./dev.db"
+```

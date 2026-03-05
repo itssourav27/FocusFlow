@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Meeting {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime
+  notes     String
+  createdAt DateTime @default(now())
+  tasks     Task[]
+}
+
+model Task {
+  id        String     @id @default(cuid())
+  meetingId String
+  title     String
+  deadline  DateTime
+  status    String     @default("pending")
+  createdAt DateTime   @default(now())
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+  @@index([status])
+  @@index([deadline])
+}
